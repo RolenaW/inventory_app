@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../item.dart';
+import '../model/item.dart';
 
 class ItemDatabase {
   final CollectionReference itemsRef = FirebaseFirestore.instance.collection('items');
