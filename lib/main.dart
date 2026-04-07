@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'data/items_database.dart';
 import 'model/item.dart';
+import 'widget/item_form.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +38,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final ItemDatabase service = ItemDatabase();
+
+  void _openForm({Item? item}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return ItemForm(
+          item: item,
+          onSubmit: (newItem) {
+            if (item == null) {
+              service.addItem(newItem);
+            } else {
+              service.updateItem(newItem);
+            }
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +95,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     'Qty: ${item.quantity} | \$${item.price}',
                   ),
 
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => service.deleteItem(item.id!),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _openForm(item: item),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () =>
+                            service.deleteItem(item.id!),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -88,9 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //editing next
-        },
+        onPressed: () => _openForm(),
         child: const Icon(Icons.add),
       ),
     );
